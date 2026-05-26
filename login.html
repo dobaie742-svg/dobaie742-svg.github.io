@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aimlock v1.0 - Cyberpunk Login</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@500;700&display=swap');
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            background-color: #050508;
+            font-family: 'Rajdhani', sans-serif;
+            color: #e0e6ed;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        .scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+        }
+
+        .vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none;
+            background: radial-gradient(circle, transparent 40%, rgba(5, 5, 8, 0.85) 95%);
+        }
+
+        .cyber-panel {
+            background: rgba(10, 11, 18, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 0, 85, 0.3);
+            border-radius: 12px;
+            padding: 45px 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 0 50px rgba(255, 0, 85, 0.15), inset 0 0 20px rgba(255, 0, 85, 0.05);
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            transform-style: preserve-3d;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .cyber-panel::before {
+            content: ''; position: absolute; top: -2px; left: -2px; width: 25px; height: 25px;
+            border-style: solid; border-color: #ff0055 transparent transparent #ff0055; border-width: 3px 0 0 3px;
+            filter: drop-shadow(0 0 5px #ff0055);
+        }
+
+        .cyber-panel::after {
+            content: ''; position: absolute; bottom: -2px; right: -2px; width: 25px; height: 25px;
+            border-style: solid; border-color: transparent #00f0ff #00f0ff transparent; border-width: 0 3px 3px 0;
+            filter: drop-shadow(0 0 5px #00f0ff);
+        }
+
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.6rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(135deg, #fff 10%, #ff0055 60%, #00f0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 85, 0.5));
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            color: #00f0ff;
+            margin-bottom: 35px;
+            font-weight: 600;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: #ff0055;
+            margin-bottom: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .cyber-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 240, 255, 0.25);
+            padding: 14px 16px;
+            border-radius: 6px;
+            font-family: 'Orbitron', monospace;
+            font-size: 1.1rem;
+            color: #fff;
+            letter-spacing: 2px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
+        }
+
+        .cyber-input:focus {
+            border-color: #ff0055;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4), inset 0 0 5px rgba(255, 0, 85, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .cyber-btn {
+            width: 100%;
+            background: linear-gradient(90deg, #ff0055 0%, #990033 100%);
+            border: 1px solid #ff0055;
+            color: #fff;
+            padding: 14px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(255, 0, 85, 0.4);
+        }
+
+        .cyber-btn:hover {
+            box-shadow: 0 0 25px #ff0055;
+            transform: translateY(-2px);
+            background: linear-gradient(90deg, #ff2a75 0%, #ff0055 100%);
+        }
+
+        .status-msg {
+            margin-top: 20px;
+            font-size: 0.95rem;
+            min-height: 22px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .error { color: #ff3333; text-shadow: 0 0 8px rgba(255, 51, 51, 0.6); }
+        .success { color: #00ff66; text-shadow: 0 0 8px rgba(0, 255, 102, 0.6); }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <div class="cyber-panel" id="loginPanel">
+        <div class="logo">Aimlock v1.0</div>
+        <div class="subtitle">LICENSE EXPIRY SYSTEM</div>
+        
+        <div class="input-group">
+            <label for="accessKey">Nhập Mã Bản Quyền</label>
+            <input type="text" id="accessKey" class="cyber-input" placeholder="Nhập key kiểm tra thời hạn..." autocomplete="off">
+        </div>
+        
+        <button class="cyber-btn" onclick="verifyExpiryKey()">KÍCH HOẠT HỆ THỐNG</button>
+        <div id="msg" class="status-msg"></div>
+    </div>
+
+    <script>
+        // Hiệu ứng 3D Parallax xoay theo hướng chuột
+        const panel = document.getElementById('loginPanel');
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 25;
+            const y = (window.innerHeight / 2 - e.pageY) / 25;
+            panel.style.transform = `rotateY(${x}deg) rotateX(${-y}deg)`;
+        });
+
+        document.addEventListener('mouseleave', () => {
+            panel.style.transform = 'rotateY(0deg) rotateX(0deg)';
+        });
+
+        // Hàm đọc file key.txt và xử lý hạn sử dụng
+        async function verifyExpiryKey() {
+            const inputKey = document.getElementById('accessKey').value.trim();
+            const msg = document.getElementById('msg');
+            
+            if (inputKey === "") {
+                msg.className = "status-msg error";
+                msg.innerText = "LỖI: Vui lòng không bỏ trống trường thông tin!";
+                return;
+            }
+
+            try {
+                // Đọc file dữ liệu key cục bộ
+                const response = await fetch('key.txt');
+                if (!response.ok) throw new Error();
+                
+                const textData = await response.text();
+                const lines = textData.split('\n');
+
+                let keyFound = false;
+                let isExpired = false;
+                let expiryDateString = "";
+
+                // Duyệt qua từng dòng để bóc tách Key và Ngày hết hạn
+                for (let line of lines) {
+                    if (line.trim() === "" || !line.includes('|')) continue;
+                    
+                    // Tách chuỗi bằng ký tự '|'
+                    const parts = line.split('|');
+                    const savedKey = parts[0].trim();
+                    const savedDate = parts[1].trim();
+
+                    if (inputKey === savedKey) {
+                        keyFound = true;
+                        expiryDateString = savedDate;
+
+                        // Tạo mốc thời gian để so sánh
+                        const today = new Date();
+                        // Reset giờ về 00:00:00 để so sánh ngày chính xác
+                        today.setHours(0, 0, 0, 0); 
+                        
+                        const expiryDate = new Date(savedDate);
+                        expiryDate.setHours(0, 0, 0, 0);
+
+                        // Nếu ngày hiện tại vượt quá ngày hết hạn
+                        if (today > expiryDate) {
+                            isExpired = true;
+                        }
+                        break;
+                    }
+                }
+
+                if (!keyFound) {
+                    msg.className = "status-msg error";
+                    msg.innerText = "SAI MÃ KEY! KHÔNG TÌM THẤY TRÊN HỆ THỐNG.";
+                } else if (isExpired) {
+                    msg.className = "status-msg error";
+                    msg.innerText = `MÃ KEY ĐÃ HẾT HẠN VÀO NGÀY: ${expiryDateString}!`;
+                } else {
+                    msg.className = "status-msg success";
+                    msg.innerText = `KÍCH HOẠT THÀNH CÔNG (HẠN DÙNG: ${expiryDateString})! ĐANG VÀO MENU...`;
+                    setTimeout(() => {
+                        window.location.href = "menu.html";
+                    }, 1500);
+                }
+
+            } catch (error) {
+                msg.className = "status-msg error";
+                msg.innerText = "LỖI: Không đọc được file key.txt (Hãy mở bằng Live Server).";
+            }
+        }
+    </script>
+</body>
+</html>
